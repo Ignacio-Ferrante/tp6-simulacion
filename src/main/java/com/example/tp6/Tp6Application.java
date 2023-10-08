@@ -1,8 +1,12 @@
 package com.example.tp6;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class Tp6Application {
     public static final String ANSI_RED = "\u001B[31m";
@@ -12,16 +16,17 @@ public class Tp6Application {
     public static final String ANSI_PURPLE = "\u001B[35m";
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
+    public static final int cantidadDePisos = 20;
     static Random rand = new Random();
-    static double hv = 9999999;
+    static double hv = 9999999, tiempoSubidaPiso = .15, tiempoParadoEnPiso = 2;
 
     public static void main(String[] args) {
         List<Integer> capacidadesAscensores = List.of(3, 4, 8, 12, 20);
-        List<Integer> cantidadesAscensores = List.of(1, 2, 3, 4, 5, 6);
+
         List<String> colors = List.of(ANSI_RED, ANSI_GREEN, ANSI_YELLOW, ANSI_BLUE, ANSI_PURPLE, ANSI_CYAN, ANSI_WHITE);
         int indiceColor = 0;
         for (double CA : capacidadesAscensores) {
-            for (double NA : cantidadesAscensores) {
+            for (double NA = 1; NA <= 5; NA++) {
                 double t = 0, fin = hv;
                 double ns = 0, tpll = 0, cantLlegadas = 0;
                 double sumTiempoLLegada = 0, sumTiempoSalida = 0;
@@ -84,8 +89,17 @@ public class Tp6Application {
     }
 
     private static void actualizarTiempoProximaSubida(int indiceProxTps, double[] tps, double ns, double ca, double t) {
-        double tp = tps[indiceProxTps];
-        tps[indiceProxTps] = t + rand.nextInt(30) + 1;
+        Set<Integer> pisosQueSuben = new HashSet<>();
+        double cantidadDeSubidas = Math.min(ns, ca);
+
+        for (int i = 1; i <= cantidadDeSubidas; i++) {
+            pisosQueSuben.add(rand.nextInt(cantidadDePisos) + 1); //al ser un set no pueden haber repetidos
+        }
+
+        //tiempo que tarda en subir y bajar al piso mas alto + tiempo que tarda en todas las paradas
+        double tiempoSubida = 2 * Collections.max(pisosQueSuben) * tiempoSubidaPiso + pisosQueSuben.size() * tiempoParadoEnPiso;
+
+        tps[indiceProxTps] = t + tiempoSubida;
     }
 
     private static int getProximoTps(double[] tps) {
@@ -106,6 +120,6 @@ public class Tp6Application {
     }
 
     private static double calcularIA() {
-        return rand.nextInt(2) + 1;
+        return rand.nextDouble(2);
     }
 }
